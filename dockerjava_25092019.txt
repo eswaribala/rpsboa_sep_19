@@ -1,0 +1,129 @@
+Step1
+cf login -a api.run.pivotal.io
+
+step2
+
+cf push routename -p <jar>
+cf push globalins-cf -p <jar>
+
+step3
+connect app to db service
+
+step 4
+restage
+
+
+
+-------------------------------------------------------------
+step 1 :
+
+docker run --name demo-mysql -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=demo -e MYSQL_USER=demo_user -e MYSQL_PASSWORD=demo_pass -d mysql
+
+
+docker run --name rps-mysql -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=rpsdb -e MYSQL_USER=rps_user -e MYSQL_PASSWORD=rps_pass -d mysql
+
+docker run --name boa-mysql -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=boamumbaidb -e MYSQL_USER=boa_user -e MYSQL_PASSWORD=boa_pass -d mysql
+
+check the log
+docker logs demo-mysql
+
+testing......
+docker exec -it demo-mysql mysql -u demo_user -p
+docker exec -it boa-mysql mysql -u root -p
+create database use root credentials when container running
+
+step 2
+
+create docker file
+FROM java:8
+LABEL maintainer=“chathuranga.t@gmail.com”
+VOLUME /tmp
+EXPOSE 8080
+ADD target/spring-boot-data-jpa-example-0.0.1-SNAPSHOT.jar spring-boot-data-jpa-example-0.0.1-SNAPSHOT.jar
+ENTRYPOINT ["java","-jar","spring-boot-data-jpa-example-0.0.1-SNAPSHOT.jar"]
+
+step 3
+
+//must after changing db url
+mvn clean install -DskipTests 
+
+
+step 4
+
+docker build -f Dockerfile -t spring-jpa-app .
+
+or
+------------------------------
+sample docker file
+FROM openjdk:8-jdk-alpine
+VOLUME /tmp
+ARG JAR_FILE
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
+-----------------------------------------
+docker build --build-args=build/libs/*.jar -t myorg/myapp .
+
+or
+docker build -t globalins .
+
+step 6
+
+docker images
+
+step 7
+docker ps
+
+
+step 8
+                                                 container name
+docker run -h 192.168.99.100 -p 6060:6060 --name demo-app 
+--link demo-mysql:mysql -d globalins
+        mysql container name:mysql image name     app image name     
+docker run -h 192.168.99.100 -p 7070:6060 --name test-app 
+--link demo-mysql:mysql -d spring-jpa-app
+
+docker run -h 192.168.99.100 -p 7070:7070 --name kycprocess-app 
+--link boa-mysql:mysql -d kycprocess
+
+----------------------------------------
+Open a terminal window.
+
+Sign into your Azure account with the Azure CLI by typing az login
+
+Create an Azure service principal by typing az ad sp create-for-rbac --name "uuuuuuuu" --password "pppppppp" (uuuuuuuu is the user name and pppppppp is the password for the service principal).
+
+Azure should print out a JSON response resembling this:
+
+
+{
+   "appId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+   "displayName": "uuuuuuuu",
+   "name": "http://uuuuuuuu",
+   "password": "pppppppp",
+   "tenant": "tttttttt-tttt-tttt-tttt-tttttttttttt"
+}
+
+Configure Maven to use your Azure service principal
+In this section, you will configure Maven to authenticate using your Azure service principal for web app deployment.
+
+Open your Maven settings.xml file in a text editor (usually found at either /etc/maven/settings.xml or $HOME/.m2/settings.xml).
+
+Add your Azure service principal settings from the previous section of this tutorial to the <servers> collection in the settings.xml file as shown below:
+
+<servers>
+   <server>
+     <id>azure-auth</id>
+      <configuration>
+         <client>aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa</client>
+         <tenant>tttttttt-tttt-tttt-tttt-tttttttttttt</tenant>
+         <key>pppppppp</key>
+         <environment>AZURE</environment>
+      </configuration>
+   </server>
+</servers>
+Save and close the settings.xml file.
+
+./mvnw azure-webapp:deploy
+------------------------------------------------------
+
+
