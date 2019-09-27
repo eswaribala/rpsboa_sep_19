@@ -27,6 +27,20 @@ docker run --name boa-mysql -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=bo
 check the log
 docker logs demo-mysql
 
+remove the container
+
+docker rm containerid
+
+stop the container
+docker stop containerid
+
+restart the container
+docker restart containerid
+
+
+
+
+
 testing......
 docker exec -it demo-mysql mysql -u demo_user -p
 docker exec -it boa-mysql mysql -u root -p
@@ -84,6 +98,11 @@ docker run -h 192.168.99.100 -p 7070:6060 --name test-app
 
 docker run -h 192.168.99.100 -p 7070:7070 --name kycprocess-app 
 --link boa-mysql:mysql -d kycprocess
+
+
+docker run -h 192.168.99.100 -p 7090:6060 --name container-app 
+--link demo-mysql:mysql -d kycmumbai-app
+
 
 ----------------------------------------
 Open a terminal window.
